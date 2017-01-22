@@ -62,7 +62,7 @@ module.exports = (robot) ->
 
         if rain and not currentlyRaining
           if robot.adapterName is "telegram"
-            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")\n+icon")
+            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")\n"+icon)
           else
             sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
 
