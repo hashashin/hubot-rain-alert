@@ -12,6 +12,7 @@
 #   HUBOT_RAIN_FREQUENCY (Optional, default 2) How frequently to check for updates, in minutes.
 #   HUBOT_RAIN_STARTHOUR (Optional, default 0) The beginning hour of when rain checks will be made, useful for limiting calls to between work hours and maximizing API calls per day.
 #   HUBOT_RAIN_ENDHOUR (Optional, default 24) The end hour of when rain checks will be made, useful for limiting calls to between work hours and maximizing API calls per day.
+#   HUBOT_RAIN_METRIC (Optional, set to 'true' to fetch data in SI)
 #
 # Commands:
 #   None
@@ -44,8 +45,14 @@ module.exports = (robot) ->
       res.on 'end', ->
         weatherData = JSON.parse(dataString)
         condition = weatherData.current_observation.weather
-        precip = parseFloat(weatherData.current_observation.precip_1hr_in)
 
+        if process.env.HUBOT_RAIN_METRIC
+          precip = parseFloat(weatherData.current_observation.precip_1hr_metric)
+        else
+          precip = parseFloat(weatherData.current_observation.precip_1hr_in)
+# robot.adapterName needs hubot >= 2.7.2, see https://github.com/github/hubot/pull/663/files
+        if robot.adapterName is "telegram"
+          icon = weatherData.current_observation.icon_url
         rain = false
 
         if condition.toLowerCase().indexOf("rain") != -1
@@ -54,7 +61,10 @@ module.exports = (robot) ->
           rain = true
 
         if rain and not currentlyRaining
-          sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
+          if robot.adapterName is "telegram"
+            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")\n+icon")
+          else
+            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
 
         if not rain and currentlyRaining
           sendAnnouncement("Announcement: It has stopped raining.")
