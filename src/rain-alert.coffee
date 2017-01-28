@@ -29,13 +29,21 @@ module.exports = (robot) ->
   endHour = process.env.HUBOT_RAIN_ENDHOUR or 24
   station = process.env.HUBOT_RAIN_STATION
   token = process.env.HUBOT_RAIN_WUNDERGROUND_TOKEN
-
+  icon = ""
   lastPrecip = -1
   currentlyRaining = false
 
   sendAnnouncement = (message) ->
     for room in roomsToAnnounceIn.split(',')
       robot.messageRoom(room, message)
+      if robot.adapterName is "telegram"
+        robot.emit 'telegram:invoke', 'sendPhoto', {
+          chat_id: room
+          photo: icon
+        }, (error, response) ->
+          if error != null
+            robot.logger.error error
+          robot.logger.debug response
 
   checkForRain = ->
     http.get("http://api.wunderground.com/api/" + token + "/conditions/q/" + station + ".json", (res) ->
@@ -52,7 +60,7 @@ module.exports = (robot) ->
           precip = parseFloat(weatherData.current_observation.precip_1hr_in)
 # robot.adapterName needs hubot >= 2.7.2, see https://github.com/github/hubot/pull/663/files
         if robot.adapterName is "telegram"
-          icon = weatherData.current_observation.icon_url
+          icon += weatherData.current_observation.icon_url
         rain = false
 
         if condition.toLowerCase().indexOf("rain") != -1
@@ -61,10 +69,7 @@ module.exports = (robot) ->
           rain = true
 
         if rain and not currentlyRaining
-          if robot.adapterName is "telegram"
-            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")\n"+icon)
-          else
-            sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
+          sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
 
         if not rain and currentlyRaining
           sendAnnouncement("Announcement: It has stopped raining.")
