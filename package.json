@@ -1,6 +1,6 @@
 {
   "name": "hubot-rain-alert",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Hubot script to alert whenever it starts and stops raining, in realtime.",
   "main": "index.coffee",
   "scripts": {
