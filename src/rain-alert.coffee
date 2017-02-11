@@ -53,7 +53,7 @@ module.exports = (robot) ->
       res.on 'end', ->
         weatherData = JSON.parse(dataString)
         condition = weatherData.current_observation.weather
-
+        
         if process.env.HUBOT_RAIN_METRIC
           precip = parseFloat(weatherData.current_observation.precip_1hr_metric)
         else
@@ -69,10 +69,10 @@ module.exports = (robot) ->
           rain = true
 
         if rain and not currentlyRaining
-          sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")")
+          sendAnnouncement("Announcement: It's raining! (Condition: " + condition + ", Precipitation this hour: " + precip + ")\n" + weatherData.current_observation.forecast_url)
 
         if not rain and currentlyRaining
-          sendAnnouncement("Announcement: It has stopped raining.")
+          sendAnnouncement("Announcement: It has stopped raining.\n" + weatherData.current_observation.forecast_url)
 
         currentlyRaining = rain
         lastPrecip = precip
