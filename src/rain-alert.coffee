@@ -37,9 +37,9 @@ module.exports = (robot) ->
     for room in roomsToAnnounceIn.split(',')
       robot.messageRoom(room, message)
       if robot.adapterName is "telegram"
-        robot.emit 'telegram:invoke', 'sendPhoto', {
+        robot.emit 'telegram:invoke', 'sendDocument', {
           chat_id: room
-          photo: icon
+          document: icon
         }, (error, response) ->
           if error != null
             robot.logger.error error
