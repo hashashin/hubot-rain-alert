@@ -44,6 +44,7 @@ module.exports = (robot) ->
           if error != null
             robot.logger.error error
           robot.logger.debug response
+          icon=""
 
   checkForRain = ->
     http.get("http://api.wunderground.com/api/" + token + "/conditions/q/" + station + ".json", (res) ->
